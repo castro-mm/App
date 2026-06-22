@@ -1,0 +1,52 @@
+<div class="container-fluid">
+    <app-breadcrumb />
+    <app-page-header
+        title="Exemplos"
+        subtitle="Entidade modelo demonstrando os padrões da solução.">
+        <p-button icon="pi pi-plus" label="Novo" (click)="openDialog()" />
+    </app-page-header>
+
+    <div class="card mb-4 px-3 pt-3 pb-3">
+        <form [formGroup]="form">
+            <div class="section-label mb-3">
+                <i class="pi pi-filter me-2"></i>Filtros
+            </div>
+            <p-divider class="mb-3"/>
+            <div class="row g-2 align-items-end">
+                <div class="col-12 col-md-6 col-lg-4">
+                    <label for="nome" class="field-label">Nome</label>
+                    <p-autocomplete
+                        inputId="nome"
+                        formControlName="nome"
+                        appendTo="body"
+                        [suggestions]="autocompleteSuggestions['nome']"
+                        (completeMethod)="filter($event, 'nome')"
+                        [forceSelection]="false"
+                        [minLength]="1"
+                        fluid />
+                </div>
+                <div class="col-12 col-lg-auto d-flex align-items-end justify-content-end ms-auto">
+                    <p-button
+                        icon="pi pi-filter-slash"
+                        label="Limpar"
+                        severity="secondary"
+                        text
+                        (click)="form.reset()" />
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <app-table-list
+        [cols]="columns"
+        [rows]="10"
+        [entityList]="entityList()"
+        [modalSize]="modalSize"
+        [globalFilterFields]="filterFields"
+        [isLoading]="isLoading"
+        [detailComponent]="detailComponent"
+        (onListar)="listar()"
+        (onExcluirVarios)="excluirVarios($event)"
+        (onExcluir)="excluir($event)"
+    />
+</div>

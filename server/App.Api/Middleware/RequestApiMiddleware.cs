@@ -1,0 +1,173 @@
+using System.Text.Json;
+using App.Api.Objects;
+using App.Core.Dtos.System;
+using App.Core.Interfaces.Services.System;
+
+namespace App.Api.Middleware;
+
+// TODO: Criar uma tabela de Log de Erros no banco de dados para registrar as exceções.
+public class RequestApiMiddleware
+{
+    private readonly Guid traceId = Guid.NewGuid();
+    private readonly IHostEnvironment _env;
+    private readonly RequestDelegate _next;
+    private readonly ILogger<RequestApiMiddleware> _logger;
+    private readonly IServiceProvider _serviceProvider;
+
+    public RequestApiMiddleware(IHostEnvironment env, RequestDelegate next, ILogger<RequestApiMiddleware> logger, IServiceProvider serviceProvider)
+    {
+        _env = env;
+        _next = next;
+        _logger = logger;
+        _serviceProvider = serviceProvider;
+    }
+
+    public async Task InvokeAsync(HttpContext httpContext)
+    {
+        // Não processar requisições de download de arquivo
+        if (httpContext.Request.Path.StartsWithSegments("/api/arquivo/download")) // TODO: AVALIAR UMA MELHOR SOLUCAO (MAIS ELEGANTE)
+        {
+            await _next(httpContext);
+            return;
+        }
+
+        // Não processar requisições que não são da API (arquivos estáticos, frontend Angular)
+        if (!httpContext.Request.Path.StartsWithSegments("/api"))
+        {
+            await _next(httpContext);
+            return;
+        }
+
+        // Cria um MemoryStream para capturar a resposta
+        var originalBodyStream = httpContext.Response.Body;
+        using var memoryStream = new MemoryStream();
+        httpContext.Response.Body = memoryStream;
+
+        try
+        {
+            // Executa a próxima etapa do pipeline
+            await _next(httpContext);
+
+            memoryStream.Seek(0, SeekOrigin.Begin);
+
+            // Respostas binárias (PDF, Excel, CSV, downloads em geral) passam direto,
+            // sem ser embrulhadas no envelope ApiResponse.
+            var contentType = httpContext.Response.ContentType ?? string.Empty;
+            var isPassThrough = !contentType.Contains("application/json", StringComparison.OrdinalIgnoreCase)
+                             && !contentType.Contains("text/plain", StringComparison.OrdinalIgnoreCase)
+                             && !contentType.Contains("text/html", StringComparison.OrdinalIgnoreCase);
+
+            if (isPassThrough)
+            {
+                await memoryStream.CopyToAsync(originalBodyStream);
+                return;
+            }
+
+            var originalResponse = await new StreamReader(memoryStream).ReadToEndAsync();
+
+            await HandleResponseBodyAsync(
+                httpContext,
+                originalBodyStream,
+                contentType.Contains("text/plain", StringComparison.OrdinalIgnoreCase)
+                    ? originalResponse
+                    : default!,
+                data: contentType.Contains("application/json", StringComparison.OrdinalIgnoreCase)
+                    ? JsonSerializer.Deserialize<object>(originalResponse)
+                    : null
+            );
+        }
+        catch (OperationCanceledException) when (httpContext.RequestAborted.IsCancellationRequested)
+        {
+            await HandleOperationCancelledAsync(httpContext, originalBodyStream);
+        }
+        catch (Exception ex)
+        {
+            await HandleExceptionAsync(httpContext, ex, originalBodyStream);
+        }
+        finally
+        {
+            httpContext.Response.Body = originalBodyStream;
+        }
+    }
+
+    private async Task HandleExceptionAsync(HttpContext httpContext, Exception exception, Stream originalBodyStream)
+    {
+        httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+
+        await HandleResponseBodyAsync(
+            httpContext,
+            originalBodyStream,
+            exception.Message,
+            details: _env.IsDevelopment()
+                ? (exception.InnerException == null ? (exception.StackTrace ?? "Detalhamento não disponível") : exception.InnerException.Message)
+                : "Internal Server Error"
+        );
+
+        _logger.LogError(exception, "Exception on path: {Path}.", httpContext.Request.Path);
+
+        var logDeErro = new LogDeErroDto
+        {
+            Mensagem = exception.Message,
+            Detalhes = exception.InnerException == null ? (exception.StackTrace ?? "Detalhamento não disponível") : exception.InnerException.Message,
+            Metodo = httpContext.Request.Method,
+            Caminho = httpContext.Request.Path,
+            Ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "IP não disponível",
+            Navegador = httpContext.Request.Headers.UserAgent.ToString(),
+            DataDeCriacao = DateTime.Now,
+            DataDeAtualizacao = DateTime.Now,
+            Usuario = httpContext.User.Identity?.Name ?? "Anonymous",
+            TraceId = traceId
+        };
+
+        try
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var logDeErroService = scope.ServiceProvider.GetRequiredService<ILogDeErroService>();
+
+            var result = await logDeErroService.CreateAsync(logDeErro, default);
+
+            _logger.LogInformation("Error logged successfully.");
+        }
+        catch (Exception logEx)
+        {
+            _logger.LogError(logEx, "Failed to log error to the database.");
+        }
+    }
+
+    private async Task HandleOperationCancelledAsync(HttpContext httpContext, Stream originalBodyStream)
+    {
+        httpContext.Response.StatusCode = StatusCodes.Status499ClientClosedRequest;
+
+        await HandleResponseBodyAsync(
+            httpContext,
+            originalBodyStream,
+            "A requisição foi cancelada pelo cliente.",
+            details: "Client Closed Request"
+        );
+
+        _logger.LogInformation("Request cancelled by the user on path: {Path}.", httpContext.Request.Path);
+    }
+
+    private async Task HandleResponseBodyAsync(HttpContext httpContext, Stream originalBodyStream, string message, object? data = null, string? details = null)
+    {
+        httpContext.Response.ContentType = "application/json";
+        httpContext.Response.Body = originalBodyStream;
+        httpContext.Response.Headers.Remove("Content-Length");
+
+        var response = new ApiResponse(
+            httpContext.Response.StatusCode,
+            message,
+            DateTime.Now,
+            httpContext.Request.Path,
+            traceId,
+            data,
+            details
+        );
+
+        await httpContext.Response.WriteAsJsonAsync(response, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = true
+        });        
+    }
+}

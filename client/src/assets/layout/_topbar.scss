@@ -1,0 +1,230 @@
+@use 'mixins' as *;
+
+.layout-topbar {
+    position: fixed;
+    height: 4rem;
+    z-index: 997;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 0 2rem;
+    background-color: var(--surface-card);
+    border-bottom: 1px solid var(--surface-border);
+    transition: left var(--layout-section-transition-duration);
+    display: flex;
+    align-items: center;
+
+    .layout-topbar-logo-container {
+        width: 15rem;
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .layout-topbar-logo {
+        display: inline-flex;
+        align-items: center;
+        font-size: 1.5rem;
+        border-radius: var(--content-border-radius);
+        color: var(--text-color);
+        font-weight: 500;
+        gap: 0.5rem;
+
+        svg {
+            width: 3rem;
+        }
+
+        &:focus-visible {
+            @include focused();
+        }
+    }
+
+    .layout-topbar-action {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        color: var(--text-color-secondary);
+        border-radius: 50%;
+        width: 2.5rem;
+        height: 2.5rem;
+        color: var(--text-color);
+        transition: background-color var(--element-transition-duration);
+        cursor: pointer;
+
+        &:hover {
+            background-color: var(--surface-hover);
+        }
+
+        &:focus-visible {
+            @include focused();
+        }
+
+        i {
+            font-size: 1.25rem;
+        }
+
+        span {
+            font-size: 1rem;
+            display: none;
+        }
+
+        &.layout-topbar-action-highlight {
+            background-color: color-mix(in srgb, var(--primary-color) 12%, transparent);
+            color: var(--primary-color);
+        }
+
+        // Ícone de sol em laranja (botão de tema)
+        &.topbar-action-sun {
+            i.pi-sun { color: #f59e0b !important; font-size: 1.35rem; }
+            i.pi-moon { color: #94a3b8 !important; }
+        }
+
+        // Ícone de coração outline
+        &.topbar-action-heart {
+            i.pi-heart { color: #94a3b8 !important; }
+            &:hover i.pi-heart { color: #ef4444 !important; }
+        }
+    }
+
+    // Divisor vertical entre as ações utilitárias e a área do usuário
+    .topbar-divider {
+        width: 1px;
+        height: 1.5rem;
+        background-color: var(--surface-border);
+        align-self: center;
+        margin: 0 0.25rem;
+    }
+
+    // Botão do usuário (avatar circular com iniciais + nome curto)
+    .layout-topbar-user {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.25rem 0.75rem 0.25rem 0.25rem;
+        background: transparent;
+        border: none;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: background-color var(--element-transition-duration);
+
+        &:hover { background-color: var(--surface-hover); }
+        &:focus-visible { @include focused(); }
+
+        .topbar-user-avatar {
+            width: 2rem;
+            height: 2rem;
+            min-width: 2rem;
+            border-radius: 50%;
+            object-fit: cover;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+        }
+
+        .topbar-user-avatar-initials {
+            background-color: var(--primary-color);
+            color: var(--primary-contrast-color, #ffffff);
+        }
+
+        .topbar-user-name {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--text-color);
+            line-height: 1;
+            white-space: nowrap;
+            max-width: 12rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .layout-menu-button {
+        margin-right: 0.5rem;
+    }
+
+    .layout-topbar-menu-button {
+        display: none;
+    }
+
+    .layout-topbar-actions {
+        margin-left: auto;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .layout-topbar-menu-content {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .layout-config-menu {
+        display: flex;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 991px) {
+    .layout-topbar {
+        padding: 0 2rem;
+
+        .layout-topbar-logo-container {
+            width: auto;
+        }
+
+        .layout-menu-button {
+            margin-left: 0;
+            margin-right: 0.5rem;
+        }
+
+        .layout-topbar-menu-button {
+            display: inline-flex;
+        }
+
+        .layout-topbar-menu {
+            position: absolute;
+            background-color: var(--surface-overlay);
+            transform-origin: top;
+            box-shadow:
+                0px 3px 5px rgba(0, 0, 0, 0.02),
+                0px 0px 2px rgba(0, 0, 0, 0.05),
+                0px 1px 4px rgba(0, 0, 0, 0.08);
+            border-radius: var(--content-border-radius);
+            padding: 1rem;
+            right: 2rem;
+            top: 4rem;
+            min-width: 15rem;
+            border: 1px solid var(--surface-border);
+
+            .layout-topbar-menu-content {
+                gap: 0.5rem;
+            }
+
+            .layout-topbar-action {
+                display: flex;
+                width: 100%;
+                height: auto;
+                justify-content: flex-start;
+                border-radius: var(--content-border-radius);
+                padding: 0.5rem 1rem;
+
+                i {
+                    font-size: 1rem;
+                    margin-right: 0.5rem;
+                }
+
+                span {
+                    font-weight: medium;
+                    display: block;
+                }
+            }
+        }
+
+        .layout-topbar-menu-content {
+            flex-direction: column;
+        }
+    }
+}

@@ -1,0 +1,10 @@
+// Bootstrap primeiro
+@use '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
+
+// PrimeNG/PrimeIcons depois (sobrescreve Bootstrap)
+@use 'primeicons/primeicons.css';
+
+// Seus estilos por último
+@use './tailwind.css';
+@use './layout/layout.scss';
+@use './demo/demo.scss';

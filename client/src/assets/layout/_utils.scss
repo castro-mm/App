@@ -1,0 +1,87 @@
+/* Utils */
+
+// ── Design System: section + field labels ────────────────────────────────── //
+.section-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.9px;
+    color: var(--p-primary-color, #6366f1);
+    opacity: 0.85;
+}
+
+.section-block {
+    border-left: 3px solid var(--p-primary-color, #6366f1);
+    padding-left: 0.85rem;
+}
+
+.field-label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--p-text-muted-color, #6b7280);
+    margin-bottom: 0.3rem;
+}
+
+.clearfix:after {
+    content: ' ';
+    display: block;
+    clear: both;
+}
+
+.card {
+    background: var(--surface-card);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: var(--content-border-radius);
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.p-toast {
+    &.p-toast-top-right,
+    &.p-toast-top-left,
+    &.p-toast-top-center {
+        top: 100px;
+    }
+}
+
+/* ── Dark theme: PrimeNG component overrides ─────────────────────────────── */
+:root[class*='app-dark'] {
+    // p-toolbar: usado pelo breadcrumb no topo das páginas — fundo transparente para
+    // herdar o background do layout-main-container (#0f172a)
+    .p-toolbar {
+        background: transparent !important;
+        border-color: transparent !important;
+        box-shadow: none !important;
+    }
+}
+
+/* ── Dark theme: Bootstrap CSS variable overrides ─────────────────────────── */
+:root[class*='app-dark'] {
+    // Bootstrap table colors — adapt to PrimeNG dark tokens
+    --bs-table-color: var(--p-text-color);
+    --bs-table-bg: transparent;
+    --bs-table-border-color: var(--p-surface-700, #334155);
+    --bs-table-striped-color: var(--p-text-color);
+    --bs-table-hover-color: var(--p-text-color);
+    --bs-table-hover-bg: color-mix(in srgb, var(--p-surface-700, #334155) 60%, transparent);
+
+    // Bootstrap body / borders
+    --bs-body-color: var(--p-text-color);
+    --bs-body-bg: var(--surface-ground);
+    --bs-border-color: var(--p-surface-700, #334155);
+    --bs-secondary-color: var(--p-text-muted-color);
+
+    // Bootstrap form controls
+    --bs-form-control-bg: var(--p-surface-800, #1e293b);
+    --bs-form-control-border-color: var(--p-surface-600, #475569);
+
+    // Bootstrap text utilities
+    .text-muted { color: var(--p-text-muted-color) !important; }
+    .fst-italic.text-muted { color: var(--p-text-muted-color) !important; }
+}

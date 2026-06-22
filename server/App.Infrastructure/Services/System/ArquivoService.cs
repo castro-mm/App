@@ -1,0 +1,57 @@
+using App.Core.Dtos.System;
+using App.Core.Entities.System;
+using App.Core.Interfaces.Repositories;
+using App.Core.Interfaces.Services.Security;
+using App.Core.Interfaces.Services.System;
+using App.Infrastructure.Services.Base;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+
+namespace App.Infrastructure.Services.System;
+
+public class ArquivoService : Service<ArquivoDto, Arquivo>, IArquivoService
+{
+    private readonly IConfiguration _configuration;
+    private readonly ICurrentUserService _currentUserService;
+
+    public ArquivoService(IUnitOfWork unitOfWork, IConfiguration configuration, ICurrentUserService currentUserService) : base(unitOfWork, currentUserService)
+    {
+        
+        _configuration = configuration;
+        _currentUserService = currentUserService;
+    }
+
+    public async Task<ArquivoDto> SaveFileAsync(IFormFile file, DateTime dataDaUltimaModificacao, CancellationToken cancellationToken)
+    {
+        // This rules are going to be implemented based on Specification Pattern later
+        if (file == null) throw new ArgumentException("Arquivo não enviado.", nameof(file));
+
+        // read size from file and compare with config value
+        var tamanhoMaximo = long.Parse(_configuration.GetSection("ConfiguracaoDoArquivo:TamanhoMaximoDoArquivoEmBytes").Value!);
+        if (file.Length > tamanhoMaximo) 
+            throw new ArgumentException($"O tamanho do arquivo não pode exceder {tamanhoMaximo} bytes.", nameof(file));
+
+        var tiposPermitidos = _configuration.GetSection("ConfiguracaoDoArquivo:FormatoPermitido").Value?.Split(',');
+        if (tiposPermitidos != null && !tiposPermitidos.Contains(Path.GetExtension(file.FileName).TrimStart('.')))
+            throw new ArgumentException("Formato de arquivo não permitido.", nameof(file));
+
+        using var memoryStream = new MemoryStream();
+
+        await file.CopyToAsync(memoryStream, cancellationToken);
+
+        return await base.CreateAsync(
+            new ArquivoDto
+            {
+                Nome = Path.GetFileNameWithoutExtension(file.FileName).ToLowerInvariant(),
+                Extensao = Path.GetExtension(file.FileName).ToLowerInvariant(),
+                Tamanho = file.Length,
+                Tipo = file.ContentType,
+                DataDaUltimaModificacao = dataDaUltimaModificacao,
+                Dados = memoryStream.ToArray(),
+                DataDeAtualizacao = DateTime.Now,
+                DataDeCriacao = DateTime.Now,
+                UserId = _currentUserService.UserId
+            }, cancellationToken
+        ) ?? throw new InvalidOperationException("Erro ao salvar o arquivo.");
+    }        
+}

@@ -1,0 +1,369 @@
+/* ============================================================
+   Controle de Contas — Manual do Usuário
+   Estilos para geração do PDF via md-to-pdf (Puppeteer)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ── Variáveis ───────────────────────────────────────────── */
+:root {
+  --brand:       #4F6EF7;
+  --brand-light: #eef2ff;
+  --text:        #1e293b;
+  --text-muted:  #64748b;
+  --border:      #e2e8f0;
+  --bg-soft:     #f8fafc;
+  --green:       #16a34a;
+  --green-light: #dcfce7;
+  --red:         #dc2626;
+  --red-light:   #fee2e2;
+  --yellow:      #ca8a04;
+  --yellow-light:#fef9c3;
+  --blue-light:  #dbeafe;
+}
+
+/* ── Reset / Base ────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  font-size: 11.5pt;
+  line-height: 1.8;
+  color: var(--text);
+  background: #fff;
+  margin: 0;
+  padding: 0;
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+}
+
+/* ── Quebra de página ────────────────────────────────────── */
+h1 { page-break-before: always; }
+h1:first-of-type { page-break-before: avoid; }
+
+h2, h3 { page-break-after: avoid; }
+table, figure, .mockup { page-break-inside: avoid; }
+
+/* ── Cabeçalhos ──────────────────────────────────────────── */
+h1 {
+  font-size: 26pt;
+  font-weight: 700;
+  color: var(--brand);
+  margin: 0 0 8px 0;
+  padding-bottom: 10px;
+  border-bottom: 3px solid var(--brand);
+}
+
+h2 {
+  font-size: 18pt;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 28px 0 8px;
+  padding-left: 10px;
+  border-left: 4px solid var(--brand);
+}
+
+h3 {
+  font-size: 15pt;
+  font-weight: 600;
+  color: #334155;
+  margin: 20px 0 6px;
+}
+
+h4 {
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 16px 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 11pt;
+}
+
+/* ── Parágrafos e texto ──────────────────────────────────── */
+p { margin: 0 0 10px; }
+strong { color: #0f172a; }
+em { color: var(--text-muted); }
+
+/* ── Links ───────────────────────────────────────────────── */
+a { color: var(--brand); text-decoration: none; }
+
+/* ── Listas ──────────────────────────────────────────────── */
+ul, ol { margin: 0 0 12px 0; padding-left: 22px; }
+li { margin-bottom: 4px; }
+li > ul, li > ol { margin-top: 4px; }
+ol li::marker { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; font-variant-numeric: lining-nums; }
+
+/* ── Blockquote (caixas de destaque) ─────────────────────── */
+blockquote {
+  margin: 14px 0;
+  padding: 10px 14px;
+  background: var(--blue-light);
+  border-left: 4px solid var(--brand);
+  border-radius: 0 6px 6px 0;
+  color: #1e3a8a;
+  font-size: 12.5pt;
+}
+blockquote p { margin: 0; }
+blockquote strong { color: #1e3a8a; }
+
+/* ── Caixas especiais via classe ──────────────────────────── */
+.dica {
+  background: var(--green-light);
+  border-left: 4px solid var(--green);
+  padding: 10px 14px;
+  border-radius: 0 6px 6px 0;
+  margin: 14px 0;
+  color: #14532d;
+  font-size: 12.5pt;
+}
+.aviso {
+  background: var(--yellow-light);
+  border-left: 4px solid var(--yellow);
+  padding: 10px 14px;
+  border-radius: 0 6px 6px 0;
+  margin: 14px 0;
+  color: #713f12;
+  font-size: 12.5pt;
+}
+.importante {
+  background: var(--red-light);
+  border-left: 4px solid var(--red);
+  padding: 10px 14px;
+  border-radius: 0 6px 6px 0;
+  margin: 14px 0;
+  color: #7f1d1d;
+  font-size: 12.5pt;
+}
+
+/* ── Tabelas ──────────────────────────────────────────────── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 14px 0;
+  font-size: 12pt;
+}
+thead th {
+  background: var(--brand);
+  color: #fff;
+  font-weight: 600;
+  padding: 8px 10px;
+  text-align: left;
+  font-size: 11.5pt;
+}
+tbody tr:nth-child(even) { background: var(--bg-soft); }
+tbody td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+/* ── Código inline ───────────────────────────────────────── */
+code {
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 11.5pt;
+  font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
+  color: #be185d;
+}
+
+/* ── Bloco de código ─────────────────────────────────────── */
+pre {
+  background: #1e293b;
+  color: #e2e8f0;
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 11pt;
+  overflow: auto;
+  margin: 14px 0;
+}
+pre code {
+  background: none;
+  border: none;
+  color: inherit;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* ── Linha horizontal ────────────────────────────────────── */
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 24px 0;
+}
+
+/* ── Mockup de tela ──────────────────────────────────────── */
+.mockup {
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 16px 0;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  font-size: 11.5pt;
+}
+.mockup-bar {
+  background: var(--brand);
+  color: #fff;
+  padding: 7px 14px;
+  font-weight: 600;
+  font-size: 11.5pt;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mockup-body {
+  background: #fff;
+  padding: 14px 16px;
+}
+
+/* Cartões do dashboard no mockup */
+.mock-cards {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.mock-card {
+  flex: 1;
+  min-width: 100px;
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: #fff;
+  font-size: 10.5pt;
+}
+.mock-card .mc-label { opacity: 0.8; font-size: 9.5pt; text-transform: uppercase; letter-spacing: 0.3px; }
+.mock-card .mc-val   { font-weight: 700; font-size: 17pt; line-height: 1.1; }
+.mock-card .mc-money { font-size: 10pt; opacity: 0.9; }
+.mc-blue   { background: #2563eb; }
+.mc-red    { background: #dc2626; }
+.mc-green  { background: #16a34a; }
+.mc-orange { background: #ea580c; }
+.mc-gray   { background: #6b7280; }
+
+/* Formulário no mockup */
+.mock-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: var(--bg-soft);
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+.mock-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 110px;
+}
+.mock-field label {
+  font-size: 9.5pt;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.mock-field .mock-input {
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 5px 8px;
+  background: #fff;
+  color: var(--text-muted);
+  font-size: 10.5pt;
+}
+
+/* Botões no mockup */
+.mock-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 11px;
+  border-radius: 5px;
+  font-size: 10.5pt;
+  font-weight: 600;
+  border: none;
+}
+.mock-btn-primary { background: var(--brand); color: #fff; }
+.mock-btn-success { background: var(--green); color: #fff; }
+.mock-btn-danger  { background: var(--red);   color: #fff; }
+.mock-btn-ghost   { background: var(--bg-soft); color: var(--text-muted); border: 1px solid var(--border); }
+
+/* Tabela no mockup */
+.mock-table { width: 100%; border-collapse: collapse; font-size: 10.5pt; }
+.mock-table th {
+  background: var(--bg-soft);
+  color: var(--text-muted);
+  font-weight: 600;
+  padding: 5px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 10pt;
+  text-transform: uppercase;
+}
+.mock-table td {
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+.mock-table tr:last-child td { border-bottom: none; }
+
+/* Badges de status */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10pt;
+  font-weight: 600;
+}
+.badge-aberta    { background: #dbeafe; color: #1d4ed8; }
+.badge-paga      { background: var(--green-light); color: var(--green); }
+.badge-vencida   { background: var(--red-light); color: var(--red); }
+.badge-cancelada { background: #f3f4f6; color: #6b7280; }
+
+/* Passo a passo numerado */
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 14px 0; }
+.steps li {
+  counter-increment: step;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  font-size: 12.5pt;
+}
+.steps li::before {
+  content: counter(step);
+  min-width: 22px;
+  height: 22px;
+  background: var(--brand);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 11pt;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Capa do documento */
+.cover {
+  text-align: center;
+  padding: 60px 20px 40px;
+  page-break-after: always;
+}
+.cover img { width: 90px; height: 90px; border-radius: 18px; margin-bottom: 20px; }
+.cover h1  { font-size: 28pt; border: none; padding: 0; }
+.cover p   { color: var(--text-muted); font-size: 12pt; }
+.cover .version {
+  display: inline-block;
+  margin-top: 12px;
+  background: var(--brand-light);
+  color: var(--brand);
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 10pt;
+  font-weight: 600;
+}

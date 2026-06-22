@@ -1,0 +1,70 @@
+name: Build and Deploy Contas
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  DOTNET_VERSION: 9.0.x
+  NODE_VERSION: 24
+  CLIENT_PATH: ./client
+  API_PROJECT_PATH: ./server/Contas.Api/Contas.Api.csproj
+  PUBLISH_PATH: ./publish
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: ./global.json
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: ./client/package-lock.json
+
+      - name: Restore .NET dependencies
+        run: dotnet restore ${{ env.API_PROJECT_PATH }}
+
+      - name: Install frontend dependencies
+        working-directory: ${{ env.CLIENT_PATH }}
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: ${{ env.CLIENT_PATH }}
+        run: npm run build -- --configuration production
+
+      - name: Publish API
+        run: dotnet publish ${{ env.API_PROJECT_PATH }} --configuration Release --output ${{ env.PUBLISH_PATH }}
+
+      - name: Upload published artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v7
+        with:
+          name: contas-app
+          path: ${{ env.PUBLISH_PATH }}
+
+      - name: Deploy to Azure Web App
+        if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch')
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ vars.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ${{ env.PUBLISH_PATH }}

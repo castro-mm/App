@@ -1,0 +1,37 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using App.Core.Interfaces.Services.Security;
+using Microsoft.AspNetCore.Http;
+
+namespace App.Infrastructure.Services.Security;
+
+public class CurrentUserService : ICurrentUserService
+{
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public CurrentUserService(IHttpContextAccessor httpContextAccessor)
+    {
+        _httpContextAccessor = httpContextAccessor;
+    }
+
+    private ClaimsPrincipal? User => _httpContextAccessor.HttpContext?.User;
+
+    public int UserId
+    {
+        get
+        {
+            var value = User?.FindFirstValue(ClaimTypes.NameIdentifier)
+                     ?? User?.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+            return int.TryParse(value, out var id) ? id : 0;
+        }
+    }
+
+    public string? UserName => User?.FindFirstValue(ClaimTypes.Name);
+
+    public string? Email => User?.FindFirstValue(ClaimTypes.Email);
+
+    public bool IsAuthenticated => User?.Identity?.IsAuthenticated ?? false;
+
+    public bool IsInRole(string role) => User?.IsInRole(role) ?? false;
+}

@@ -1,0 +1,13 @@
+<svg width="1200" height="320" viewBox="0 0 1200 320" xmlns="http://www.w3.org/2000/svg">
+<rect width="1200" height="320" rx="24" fill="#0F172A"/>
+<g transform="translate(40,32)">
+<rect width="256" height="256" rx="48" fill="#4F6EF7"/>
+<path d="M70 128C70 76 108 40 160 40C190 40 214 50 234 70L206 94C194 82 178 76 160 76C130 76 108 98 108 128C108 158 130 180 160 180C178 180 194 174 206 162L234 186C214 206 190 216 160 216C108 216 70 180 70 128Z" fill="white"/>
+<rect x="118" y="124" width="18" height="42" rx="4" fill="white"/>
+<rect x="144" y="102" width="18" height="64" rx="4" fill="white"/>
+<rect x="170" y="80" width="18" height="86" rx="4" fill="white"/>
+</g>
+<text x="350" y="130" font-size="72" font-family="Arial" font-weight="bold" fill="#FFFFFF">Controle</text>
+<text x="350" y="215" font-size="72" font-family="Arial" font-weight="bold" fill="#FFFFFF">de Contas</text>
+<text x="352" y="265" font-size="32" font-family="Arial" fill="#CBD5E1">Gestão financeira inteligente</text>
+</svg>

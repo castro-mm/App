@@ -1,0 +1,46 @@
+<div class="container-fluid px-0">
+    <form #f [formGroup]="form" (submit)="salvar()">
+
+        <!-- ── Seção: Identificação ────────────────────────────────────── -->
+        <div class="section-block mt-3">
+            <div class="section-label">
+                <i class="pi pi-id-card me-2"></i>Identificação
+            </div>
+            <div class="row g-3 mt-1">
+                <div class="col-12">
+                    <label for="nome" class="field-label">{{ fieldsLabels['nome'] }}</label>
+                    <input
+                        id="nome"
+                        formControlName="nome"
+                        pInputText
+                        autofocus
+                        fluid
+                    />
+                    <app-field-validation-message [control]="form.get('nome')" [label]="fieldsLabels['nome']" />
+                </div>
+                <div class="col-12">
+                    <label for="descricao" class="field-label">{{ fieldsLabels['descricao'] }}</label>
+                    <textarea
+                        id="descricao"
+                        formControlName="descricao"
+                        pTextarea
+                        rows="3"
+                        fluid
+                    ></textarea>
+                    <app-field-validation-message [control]="form.get('descricao')" [label]="fieldsLabels['descricao']" />
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Ações ──────────────────────────────────────────────────── -->
+        <p-divider class="mt-3" />
+        <div class="row mt-2">
+            <div class="col-12 text-end">
+                <div class="flex flex-wrap justify-end gap-2">
+                    <p-button icon="pi pi-times" label="Fechar" text (click)="closeDialog()" />
+                    <p-button icon="pi pi-check" [label]="isLoading ? 'Executando...' : 'Salvar'" [loading]="isLoading" type="submit" [disabled]="form.invalid || isLoading" />
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,8 @@
+namespace App.Infrastructure.Objects.Requests;
+
+public class RegisterRequest
+{
+    public required string Email { get; set; }
+    public required string Password { get; set; } 
+    public required string NomeCompleto { get; set; }
+}
