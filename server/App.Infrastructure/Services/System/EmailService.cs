@@ -1,7 +1,8 @@
-using Azure;
-using Azure.Communication.Email;
 using App.Core.Interfaces.Services.System;
 using App.Infrastructure.Objects;
+using MailKit.Net.Smtp;
+using MailKit.Security;
+using MimeKit;
 using Microsoft.Extensions.Options;
 
 namespace App.Infrastructure.Services.System;
@@ -17,20 +18,16 @@ public class EmailService : IEmailService
 
     public async Task SendEmailAsync(string to, string subject, string body)
     {
-        var client = new EmailClient(_settings.ConnectionString);
+        var message = new MimeMessage();
+        message.From.Add(MailboxAddress.Parse(_settings.Sender));
+        message.To.Add(MailboxAddress.Parse(to));
+        message.Subject = subject;
+        message.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = body };
 
-        var emailMessage = new EmailMessage(
-            senderAddress: _settings.Sender,
-            content: new EmailContent(subject)
-            {
-                Html = body
-            },
-            recipients: new EmailRecipients(
-                new List<EmailAddress>
-                {
-                    new EmailAddress(to)
-                }));
-
-        await client.SendAsync(WaitUntil.Completed, emailMessage);
+        using var client = new SmtpClient();
+        await client.ConnectAsync(_settings.Host, _settings.Port, SecureSocketOptions.StartTls);
+        await client.AuthenticateAsync(_settings.Username, _settings.Password);
+        await client.SendAsync(message);
+        await client.DisconnectAsync(true);
     }
 }

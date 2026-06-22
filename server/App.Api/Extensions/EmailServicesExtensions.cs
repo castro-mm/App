@@ -8,7 +8,7 @@ public static class EmailServicesExtensions
 {
     public static void AddEmailServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<EmailSettings>(configuration.GetSection("AzureEmail"));
+        services.Configure<EmailSettings>(configuration.GetSection("Email"));
         services.AddScoped<IEmailService, EmailService>();
     }
 }
